@@ -18,32 +18,45 @@ coco=COCO(annFile)
 annIDs = coco.getAnnIds(catIds=1, iscrowd=False)
 anns = coco.loadAnns(annIDs)
 
-imgs_gt = []
-imgs = []
+imgs_gt1 = []
+duplicates = []
 
+# create array of all images and ground truth values
 for x in anns:
     imgID = x.get('image_id')
     kp = x.get('keypoints')
 
-    if any (i != 0 for i in kp[0:20]) == True and imgID not in [d['imgID'] for d in imgs_gt]:
-        url = coco.loadImgs(imgID)[0].get('coco_url')
-        img_dict = {
-            "imgID": imgID,
-            "nose_x": kp[0],
-            "nose_y": kp[1],
-            "l_eye_x": kp[3],
-            "l_eye_y": kp[4],
-            "r_eye_x": kp[6],
-            "r_eye_y": kp[7],
-            "l_ear_x": kp[9],
-            "l_ear_y": kp[10],
-            "r_ear_x": kp[12],
-            "r_ear_y": kp[13],
-            "l_shoulder_x": kp[15],
-            "l_shoulder_y": kp[16],
-            "r_shoulder_x": kp[18],
-            "r_shoulder_y": kp[19],
-            "url": url
-        }
-        imgs_gt.append(img_dict)
-        imgs.append(imgID)
+    if any (i != 0 for i in kp[0:20]) == True:
+        if imgID in [d['imgID'] for d in imgs_gt1]:
+            duplicates.append(imgID)
+        else:
+            url = coco.loadImgs(imgID)[0].get('coco_url')
+            img_dict = {
+                "imgID": imgID,
+                "nose_x": kp[0],
+                "nose_y": kp[1],
+                "l_eye_x": kp[3],
+                "l_eye_y": kp[4],
+                "r_eye_x": kp[6],
+                "r_eye_y": kp[7],
+                "l_ear_x": kp[9],
+                "l_ear_y": kp[10],
+                "r_ear_x": kp[12],
+                "r_ear_y": kp[13],
+                "l_shoulder_x": kp[15],
+                "l_shoulder_y": kp[16],
+                "r_shoulder_x": kp[18],
+                "r_shoulder_y": kp[19],
+                "url": url
+            }
+            imgs_gt1.append(img_dict)
+
+imgs_gt = []
+
+for y in range(len(imgs_gt1)):
+    if imgs_gt1[y].get('imgID') not in duplicates:
+        imgs_gt.append(imgs_gt1[y])
+
+print(len(imgs_gt))
+
+# run posenet on all the images (using url)
