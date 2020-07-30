@@ -1,3 +1,5 @@
+# get image URL and ground truth keypoints from coco val 2017 dataset
+
 from pycocotools.coco import COCO
 import numpy as np
 import skimage.io as io
@@ -5,6 +7,8 @@ import random
 import os
 import cv2
 # from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
+import json
 
 ### For visualizing the outputs ###
 import matplotlib.pyplot as plt
@@ -57,6 +61,13 @@ for y in range(len(imgs_gt1)):
     if imgs_gt1[y].get('imgID') not in duplicates:
         imgs_gt.append(imgs_gt1[y])
 
-print(len(imgs_gt))
+urls = []
 
-# run posenet on all the images (using url)
+for z in imgs_gt:
+    urls.append(z.get('url'))
+
+with open('urls.json', 'w') as outfile:
+    json.dump(urls, outfile)
+
+with open('data_gt.json', 'w') as outfile:
+    json.dump(imgs_gt, outfile)
